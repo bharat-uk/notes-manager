@@ -1,0 +1,347 @@
+NOTES MANAGER - USER GUIDE & USAGE FLOWCHART
+═══════════════════════════════════════════════════════════════════════════════
+
+APPLICATION FLOWCHART:
+═══════════════════════════════════════════════════════════════════════════════
+
+                    START APPLICATION
+                          ↓
+                   ┌──────────────────┐
+                   │  NotesApp.main() │
+                   └────────┬─────────┘
+                            ↓
+                   ┌──────────────────┐
+                   │  MainFrame Init  │
+                   │ - Connect DB     │
+                   │ - Init GUI       │
+                   └────────┬─────────┘
+                            ↓
+                   ┌──────────────────┐
+                   │  Show Main Window│
+                   │ with 2 Tabs      │
+                   └────────┬─────────┘
+                            ↓
+                ┌─────────────┴─────────────┐
+                │                           │
+        ┌───────▼────────┐        ┌────────▼─────────┐
+        │  TAB 1:        │        │  TAB 2:          │
+        │ Add Note Tab   │        │ View Notes Tab   │
+        └────────────────┘        └──────────────────┘
+                │                           │
+                ▼                           ▼
+        ┌───────────────────┐    ┌────────────────────┐
+        │ ADD NOTE WORKFLOW │    │ VIEW NOTES WORKFLOW│
+        └───────────────────┘    └────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+
+WORKFLOW 1: ADDING A NEW NOTE
+═════════════════════════════════════════════════════════════════════════════
+
+Step by Step:
+─────────────
+
+┌─ CLICK "Add Note" TAB
+│
+├─ ENTER TITLE
+│  └─ Click in "Title" field
+│  └─ Type note title (e.g., "Meeting Notes")
+│
+├─ ENTER CONTENT
+│  └─ Click in "Content" area
+│  └─ Type note content (e.g., "Discuss project timeline")
+│  └─ Can type multiple lines
+│
+├─ CLICK "Add Note" BUTTON (Green)
+│  └─ Application validates input
+│  │  ├─ Title is not empty? ✓
+│  │  └─ Content is not empty? ✓
+│  └─ Creates Note object
+│  └─ Calls DatabaseManager.addNote()
+│  │  └─ Inserts into database via JDBC:
+│  │     INSERT INTO notes (title, content, ...) VALUES (?, ?, ...)
+│  └─ Shows success message
+│
+├─ FORM CLEARS AUTOMATICALLY
+│  └─ Ready for next note
+│
+└─ NOTE SAVED IN DATABASE ✓
+   └─ db/notesdb.db now contains your note
+
+SUCCESS MESSAGE:
+┌──────────────────────┐
+│  Note added          │
+│  successfully!       │
+│  [OK]                │
+└──────────────────────┘
+
+
+ERROR HANDLING:
+───────────────
+
+If Title is Empty:
+┌──────────────────────┐
+│  Input Error         │
+│  Please enter both   │
+│  title and content!  │
+│  [OK]                │
+└──────────────────────┘
+
+If Database fails:
+┌──────────────────────┐
+│  Error               │
+│  Failed to add note! │
+│  [OK]                │
+└──────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════════
+
+WORKFLOW 2: VIEWING ALL NOTES
+═════════════════════════════════════════════════════════════════════════════
+
+Step by Step:
+─────────────
+
+┌─ CLICK "View Notes" TAB
+│  └─ Application runs:
+│     getAllNotes() from database
+│     SELECT * FROM notes ORDER BY updated_at DESC
+│
+├─ TABLE DISPLAYS
+│  └─ Shows all notes:
+│     ┌─────┬─────────────┬──────────────┬──────────────┬──────────────┐
+│     │ ID  │ Title       │ Content      │ Created      │ Updated      │
+│     ├─────┼─────────────┼──────────────┼──────────────┼──────────────┤
+│     │ 1   │ Meeting     │ Discuss... │ 2024-12-01   │ 2024-12-01   │
+│     │ 2   │ Shopping    │ Buy gro... │ 2024-12-01   │ 2024-12-01   │
+│     └─────┴─────────────┴──────────────┴──────────────┴──────────────┘
+│
+├─ FEATURES:
+│  ├─ View all notes at once
+│  ├─ See preview of content (first 50 chars)
+│  ├─ Sorted by newest update first
+│  ├─ Timestamps automatically formatted
+│  └─ Scroll vertically to see more notes
+│
+└─ READY FOR SEARCH/DELETE
+
+═══════════════════════════════════════════════════════════════════════════════
+
+WORKFLOW 3: SEARCHING NOTES
+═════════════════════════════════════════════════════════════════════════════
+
+Simple Search:
+───────────────
+
+┌─ ENTER KEYWORD
+│  └─ Type in "Search" field
+│     (e.g., "meeting", "shopping", "project", etc.)
+│
+├─ CLICK "Search" BUTTON (Blue)
+│  └─ Application runs:
+│     searchNotes(keyword) from database
+│     SELECT * FROM notes WHERE title LIKE ? OR content LIKE ?
+│     └─ Searches case-insensitive
+│     └─ Searches both title AND content
+│
+├─ TABLE UPDATES
+│  └─ Shows only matching notes
+│  └─ Example: Search "meeting"
+│     ┌─────┬─────────────┬──────────────┬──────────────┬──────────────┐
+│     │ ID  │ Title       │ Content      │ Created      │ Updated      │
+│     ├─────┼─────────────┼──────────────┼──────────────┼──────────────┤
+│     │ 1   │ Meeting     │ Discuss... │ 2024-12-01   │ 2024-12-01   │
+│     └─────┴─────────────┴──────────────┴──────────────┴──────────────┘
+│
+├─ TO SEE ALL NOTES AGAIN
+│  └─ Click "Refresh" button (Green)
+│     └─ Clears search field
+│     └─ Reloads all notes
+│     └─ Back to normal view
+│
+└─ SEARCH COMPLETE
+
+SEARCH EXAMPLES:
+────────────────
+Search: "test"    → Finds all notes with "test" in title or content
+Search: "TODO"    → Finds todos (case-insensitive)
+Search: "project" → Finds project-related notes
+Search: ""        → Error message (empty keyword not allowed)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+WORKFLOW 4: DELETING A NOTE
+═════════════════════════════════════════════════════════════════════════════
+
+Step by Step:
+─────────────
+
+┌─ SELECT NOTE
+│  └─ Click on a note row in the table
+│     └─ Row gets highlighted
+│     └─ Column 0 (ID) shows which note selected
+│
+├─ CLICK "Delete Selected" BUTTON (Red)
+│  └─ Application shows confirmation:
+│
+│     ┌──────────────────────────────────┐
+│     │ Confirm Delete                   │
+│     │ Are you sure you want to delete  │
+│     │ note: "Meeting Notes"?           │
+│     │   [YES]  [NO]                    │
+│     └──────────────────────────────────┘
+│
+├─ CLICK "YES" TO CONFIRM
+│  └─ Application runs:
+│     deleteNote(noteId) from database
+│     DELETE FROM notes WHERE id = ?
+│  └─ Database updates immediately
+│
+├─ SUCCESS MESSAGE
+│  └─ "Note deleted successfully!"
+│
+├─ TABLE REFRESHES
+│  └─ Note disappears from table
+│  └─ Row count decreases
+│
+└─ NOTE PERMANENTLY DELETED ✓
+
+IMPORTANT:
+──────────
+✓ Deletion is PERMANENT
+✓ No undo button available
+✓ Confirmation required
+✓ Check table to verify deletion
+
+═══════════════════════════════════════════════════════════════════════════════
+
+COMPLETE USE CASE EXAMPLE
+═════════════════════════════════════════════════════════════════════════════
+
+User Story: "I want to organize my daily notes"
+
+Step 1: Add Morning Note
+─────────────────────────
+Tab: Add Note
+Title: "Morning Standup"
+Content: "Discuss project timeline and resource allocation"
+Action: Click "Add Note"
+Result: Note saved successfully ✓
+
+Step 2: Add Second Note
+────────────────────────
+Title: "Shopping List"
+Content: "Milk, Bread, Eggs, Coffee, Vegetables"
+Action: Click "Add Note"
+Result: Note saved successfully ✓
+
+Step 3: View All Notes
+───────────────────────
+Tab: View Notes
+Result: See both notes in table
+- Row 1: "Morning Standup" (created 10:30 AM)
+- Row 2: "Shopping List" (created 11:00 AM)
+
+Step 4: Search for Project Notes
+────────────────────────────────
+Search Field: "project"
+Action: Click "Search"
+Result: Only "Morning Standup" appears (since it mentions "project")
+
+Step 5: Refresh to See All
+──────────────────────────
+Action: Click "Refresh"
+Result: Both notes visible again
+
+Step 6: Delete Shopping Note
+─────────────────────────────
+Select: Click on "Shopping List" row
+Action: Click "Delete Selected"
+Confirm: Click "YES"
+Result: Note deleted, only "Morning Standup" remains
+
+Step 7: Done
+──────────
+All tasks completed!
+Notes are permanently stored in database.
+
+═══════════════════════════════════════════════════════════════════════════════
+
+DATABASE VERIFICATION
+═════════════════════════════════════════════════════════════════════════════
+
+After using the application, your data is saved in:
+📁 db/notesdb.db
+
+This is a real SQLite database containing your notes.
+
+You can verify it exists:
+1. Open File Explorer
+2. Navigate to your project folder
+3. Look in db/ subfolder
+4. You should see: notesdb.db
+
+Optional: View database contents with SQLite Browser:
+1. Download: https://sqlitebrowser.org/
+2. Open db/notesdb.db
+3. Browse your notes in the GUI
+
+═══════════════════════════════════════════════════════════════════════════════
+
+KEYBOARD SHORTCUTS & TIPS
+═════════════════════════════════════════════════════════════════════════════
+
+While in Title Field:
+  Tab ......................... Move to Content area
+  Enter ....................... (Doesn't submit, just newline if in textarea)
+
+While in Content Area:
+  Ctrl+A ....................... Select all text
+  Ctrl+C ....................... Copy selected text
+  Ctrl+V ....................... Paste text
+  Ctrl+Z ....................... Undo (limited)
+  Tab ......................... Add tab character to text
+  Enter ........................ New line in content
+
+In Table:
+  Click on row ................. Select that row
+  Scroll down .................. See more notes if many
+
+Buttons:
+  Mouse hover .................. Button changes color
+  Click ....................... Execute action
+
+═══════════════════════════════════════════════════════════════════════════════
+
+TIPS & BEST PRACTICES
+═════════════════════════════════════════════════════════════════════════════
+
+✅ DO:
+  • Use clear, descriptive titles
+  • Search with relevant keywords
+  • Check table before deleting
+  • Close app properly (don't force close)
+  • Back up db/notesdb.db for important notes
+
+❌ DON'T:
+  • Don't delete without confirming
+  • Don't modify db files directly
+  • Don't delete db/ folder manually
+  • Don't assume window close saves data (it does, but close properly)
+
+═══════════════════════════════════════════════════════════════════════════════
+
+NEED HELP?
+═════════════════════════════════════════════════════════════════════════════
+
+Check these files:
+• README.md ..................... Full documentation
+• QUICKSTART.txt ................ Fast setup
+• SETUP.txt ..................... Detailed setup
+• ARCHITECTURE.md ............... Technical details
+• PROJECT_SUMMARY.txt ........... Project overview
+
+═══════════════════════════════════════════════════════════════════════════════
+
+HAPPY NOTING! 📝
+═════════════════════════════════════════════════════════════════════════════

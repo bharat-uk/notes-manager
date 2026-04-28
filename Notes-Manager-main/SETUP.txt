@@ -1,0 +1,118 @@
+SETUP INSTRUCTIONS - Notes Manager
+===================================
+
+STEP 1: Download SQLite JDBC Driver
+====================================
+
+Option A - Download Manually:
+1. Go to: https://github.com/xerial/sqlite-jdbc/releases
+2. Download: sqlite-jdbc-3.44.0.0.jar (or latest version)
+3. Create folder: lib
+4. Place the JAR file in the lib folder
+
+Option B - Download via PowerShell (Windows):
+1. Open PowerShell as Administrator
+2. Navigate to your project folder
+3. Create lib folder: mkdir lib
+4. Run command:
+   wget https://github.com/xerial/sqlite-jdbc/releases/download/3.44.0.0/sqlite-jdbc-3.44.0.0.jar -O lib/sqlite-jdbc-3.44.0.0.jar
+
+STEP 2: Verify Java Installation
+==================================
+
+1. Open Command Prompt or PowerShell
+2. Run: java -version
+3. You should see Java 8 or higher
+4. If not installed, download from: https://www.oracle.com/java/technologies/downloads/
+
+STEP 3: Compile and Run
+=======================
+
+Windows (Easiest):
+1. Double-click: build_and_run.bat
+
+OR Windows PowerShell:
+1. Open PowerShell in project folder
+2. Run: powershell -ExecutionPolicy Bypass -File build_and_run.ps1
+
+OR Manual Compilation:
+1. Open Command Prompt in project folder
+2. Copy and paste this command:
+   javac -cp "lib/sqlite-jdbc-3.44.0.0.jar" -d build src/main/java/com/notesmanager/*.java src/main/java/com/notesmanager/model/*.java src/main/java/com/notesmanager/database/*.java src/main/java/com/notesmanager/gui/*.java
+
+3. Then run:
+   java -cp "build;lib/sqlite-jdbc-3.44.0.0.jar" com.notesmanager.NotesApp
+
+TROUBLESHOOTING
+===============
+
+Problem: "javac is not recognized"
+Solution: 
+  - Java development tools not installed
+  - Download JDK (not just JRE) from oracle.com
+  - Add Java bin folder to PATH environment variable
+
+Problem: "SQLite JDBC Driver not found"
+Solution:
+  - Ensure sqlite-jdbc-3.44.0.0.jar is in lib folder
+  - Check filename matches exactly
+  - Recreate lib folder and re-download driver
+
+Problem: Application won't start
+Solution:
+  - Check Java version is 8 or higher
+  - Ensure database folder has write permissions
+  - Try running as Administrator
+  - Check console for error messages
+
+PROJECT STRUCTURE AT RUNTIME
+=============================
+
+After first run, you'll see:
+  pp/
+  ├── src/              (Java source files)
+  ├── build/            (Compiled .class files)
+  ├── lib/              (JDBC driver JAR)
+  ├── db/               (Created automatically)
+  │   └── notesdb.db    (SQLite database)
+  ├── build_and_run.bat
+  └── README.md
+
+FEATURES TO TRY
+===============
+
+1. Add Note Tab:
+   - Type title and content
+   - Click "Add Note"
+   - See success message
+   - Check View Notes tab for your note
+
+2. View Notes Tab:
+   - See all notes in table
+   - Click on note to select it
+   - Click "Delete Selected" to remove
+
+3. Search:
+   - Enter keyword in search box
+   - Click "Search"
+   - See filtered results
+   - Click "Refresh" to show all
+
+DATABASE VERIFICATION
+=====================
+
+To verify the database was created:
+1. Look in the db/ folder
+2. You should see: notesdb.db
+3. This is your SQLite database file
+4. Contains all your notes
+
+You can view with SQLite tools (optional):
+- https://sqlitebrowser.org/ (DB Browser for SQLite)
+- https://www.sqlite.org/cli.html (Command line)
+
+HAPPY NOTING!
+=============
+
+Your Notes Manager is ready to use!
+All notes are permanently stored in the SQLite database.
